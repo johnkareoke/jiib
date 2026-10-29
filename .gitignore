@@ -49,3 +49,4 @@ docs/commands/*
 !docs/commands/COMMANDS.md
 docs/view_specific_notes/
 docs/top-down-audit-roadmap.md
+dist/

@@ -27,10 +27,10 @@
 # --- Build quartet (VERIFIED) ---
 kotlin = "2.1.21"            # Kotlin 2.1.x ↔ Gradle 8.7–8.10; 2.1.21 fixes a >8.7 test-fixtures bug
 agp = "8.7.0"               # requires Gradle 8.9 + JDK 17+, build-tools 34; accepts compileSdk 36 (warn-only)
-composeBom = "2026.05.00"   # STABLE channel → Compose UI 1.11.1 (NOT the alpha channel)
+composeBom = "2025.11.01"   # Fire OS 5 port: Compose UI 1.9.5 / Material3 1.4.0 — last line with minSdk 21 (1.10 → 23)
 
 # --- SDK levels (also set in app/build.gradle.kts; mirrored here for audit) ---
-minSdk = "23"               # Nexus 7 2013 floor — asserted on the MERGED manifest by verifyMinSdk
+minSdk = "22"               # Fire OS 5 (Fire 7, Android 5.1) floor — asserted on the MERGED manifest by verifyMinSdk
 targetSdk = "35"
 compileSdk = "36"            # :app bumped 35→36 for media3 1.10.1 AAR metadata (see header NOTE); :macrobenchmark stays 35
 
@@ -56,9 +56,9 @@ kotlinxCollectionsImmutable = "0.3.8"
 coil = "3.1.0"
 
 # --- Camera + QR decode (SPOOL-05/06, Phase 11 — RESEARCH Pitfall 1/2) ---
-# CameraX 1.5.0 raised its floor to EXACTLY 23 (== our Nexus 7 floor); PROVEN by
-# verifyMinSdk after wiring. NOT 1.4.x (older floor story); do NOT bump blind.
-cameraX = "1.5.0"
+# Fire OS 5 port: CameraX 1.4.2 (minSdk 21). 1.5.0 raised its floor to 23 — do NOT bump
+# without re-running verifyMinSdk.
+cameraX = "1.4.2"
 # zxing:core 3.3.3 — DO NOT bump to 3.4.0+. From 3.4.0 the QR decode path
 # (FinderPatternFinder) calls Java-8 List.sort, which NoSuchMethodError-crashes on
 # API 23. flox is API 30 so a device run would NOT catch it — the JVM
@@ -85,7 +85,9 @@ navigation = "2.8.9"
 # minSdk 23 since 1.9.0 (Dec 2025) == our Nexus 7 floor; the MERGED-manifest floor is PROVEN by
 # verifyMinSdkRelease after wiring (a transitive dep could move it — the project's central trap).
 # Artifacts resolve from Google Maven (google() in settings.gradle.kts), NOT Maven Central.
-media3 = "1.10.1"
+# Fire OS 5 port: pinned back to 1.8.1 (minSdk 21; 1.9.0+ is minSdk 23). The RTSP multi-packet
+# access-unit regression above was introduced in 1.9.x, so the 1.8.x line predates it.
+media3 = "1.8.1"
 
 # --- Measurement tooling (:macrobenchmark) ---
 benchmarkMacro = "1.3.3"

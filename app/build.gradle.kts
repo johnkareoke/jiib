@@ -54,7 +54,7 @@ android {
 
     defaultConfig {
         applicationId = "works.mees.jiib"
-        minSdk = 23                                  // PKG-02 floor (asserted on MERGED manifest by verifyMinSdk)
+        minSdk = 22                                  // Fire OS 5 (Android 5.1) floor (asserted on MERGED manifest by verifyMinSdk)
         targetSdk = 35                               // D-10/D-11 cleartext caveat applies on API 24+
         versionCode = appVersionCode
         versionName = appVersionName
@@ -254,7 +254,7 @@ dependencies {
     implementation(libs.coil.network.okhttp)
 
     // --- Camera + QR decode (SPOOL-05/06, Phase 11) ---
-    // CameraX 1.5.0 (floor == 23, PROVEN by verifyMinSdkRelease) + canonical zxing:core 3.3.3
+    // CameraX 1.4.2 (floor == 21 for the Fire OS 5 port) + canonical zxing:core 3.3.3
     // (NOT 3.4.0+ — see libs.versions.toml zxingCore comment; no coreLibraryDesugaring needed).
     implementation(libs.androidx.camera.core)
     implementation(libs.androidx.camera.camera2)
@@ -263,8 +263,8 @@ dependencies {
     implementation(libs.zxing.core)
 
     // --- Media3 / ExoPlayer H.264 transport (CAM-11/13/14/16, Phase 21 — D-01/D-09) ---
-    // media3 >=1.10.1 (floor == 23, PROVEN by verifyMinSdkRelease); the RTSP multi-RTP-packet H.264
-    // access-unit fix is PRESENT (a 1.9.x regression fixed in 1.10.0 — confirm in the resolved
+    // media3 1.8.1 (floor == 21 for the Fire OS 5 port); predates the RTSP multi-RTP-packet H.264
+    // access-unit regression (a 1.9.x regression fixed in 1.10.0 — confirm in the resolved
     // artifact, don't trust the version string). Raw SurfaceView host — NO media3-ui (footprint
     // discipline). -hls is in for the spike (plan 02 measures both transports). Google Maven only.
     implementation(libs.media3.exoplayer)

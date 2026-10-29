@@ -25,8 +25,8 @@
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 
-// Locked floor — Nexus 7 2013 = API 23.
-val expectedMinSdk = 23
+// Locked floor — Fire OS 5 (Fire 7, Android 5.1) = API 22.
+val expectedMinSdk = 22
 
 val androidComponents = extensions.getByType(ApplicationAndroidComponentsExtension::class.java)
 
@@ -62,7 +62,7 @@ androidComponents.onVariants { variant ->
                 throw GradleException(
                     "verifyMinSdk FAILED (PKG-02): merged-manifest minSdkVersion is $mergedMinSdk, " +
                         "expected exactly $expectedMinSdk. A dependency likely raised the floor above the " +
-                        "Nexus 7 2013 target (API 23). Inspect ${manifestFile.absolutePath}."
+                        "Fire OS 5 target (API 22). Inspect ${manifestFile.absolutePath}."
                 )
             }
             logger.lifecycle(

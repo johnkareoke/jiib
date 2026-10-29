@@ -2,6 +2,7 @@ package works.mees.jiib.ui.screen
 
 import android.content.Context
 import android.net.Uri
+import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -123,13 +124,13 @@ fun AppSettingsScreen(
     val context = LocalContext.current
     val powerManager = remember(context) { context.getSystemService(Context.POWER_SERVICE) as PowerManager }
     var isExempt by remember {
-        mutableStateOf(powerManager.isIgnoringBatteryOptimizations(context.packageName))
+        mutableStateOf(isIgnoringBatteryOptimizations(powerManager, context.packageName))
     }
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner, powerManager) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                isExempt = powerManager.isIgnoringBatteryOptimizations(context.packageName)
+                isExempt = isIgnoringBatteryOptimizations(powerManager, context.packageName)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -176,6 +177,13 @@ fun AppSettingsScreen(
         modifier = modifier,
     )
 }
+
+/**
+ * Doze (and so the battery-optimization exemption) only exists on API 23+. On Fire OS 5
+ * (API 22) there is nothing to be exempted from, so report the app as already exempt.
+ */
+private fun isIgnoringBatteryOptimizations(powerManager: PowerManager, packageName: String): Boolean =
+    Build.VERSION.SDK_INT < Build.VERSION_CODES.M || powerManager.isIgnoringBatteryOptimizations(packageName)
 
 /**
  * The STATELESS content seam (PREVIEW_AND_TOKENS preview-first LAW) — pure inputs, no
