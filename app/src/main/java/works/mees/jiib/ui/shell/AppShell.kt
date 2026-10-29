@@ -170,8 +170,9 @@ fun AppShell(
     // this wave (file-ownership disjointness). Semantics: the flag holds while this view is attached and
     // the preference is ON; it clears LIVE on toggle-off (the keyed DisposableEffect re-runs) and on
     // dispose (shell decomposed → background/Splash), so the screen is never pinned awake outside the
-    // running shell. Default TRUE — the dedicated-display use case.
-    val keepScreenOn by container.keepScreenOn.collectAsStateWithLifecycle(initialValue = true)
+    // running shell. Default TRUE — the dedicated-display use case. With "only while printing" on,
+    // holdScreenOn drops to false between prints so the system screen timeout applies.
+    val keepScreenOn by container.holdScreenOn.collectAsStateWithLifecycle(initialValue = true)
     val rootView = LocalView.current
     DisposableEffect(rootView, keepScreenOn) {
         rootView.keepScreenOn = keepScreenOn

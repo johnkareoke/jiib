@@ -77,6 +77,22 @@ class DisplayPrefsTest {
     }
 
     @Test
+    fun emptyStore_defaultsOnlyWhilePrintingFalse() = runBlocking {
+        val (dataStore, _) = newDataStore()
+        val prefs = DisplayPrefs(dataStore)
+        assertFalse("default keepScreenOnOnlyWhilePrinting is false", prefs.keepScreenOnOnlyWhilePrinting.first())
+    }
+
+    @Test
+    fun setOnlyWhilePrintingTrue_roundTrips() = runBlocking {
+        val (dataStore, _) = newDataStore()
+        val prefs = DisplayPrefs(dataStore)
+        prefs.setKeepScreenOnOnlyWhilePrinting(true)
+        assertTrue("setKeepScreenOnOnlyWhilePrinting(true) round-trips", prefs.keepScreenOnOnlyWhilePrinting.first())
+        assertTrue("keepScreenOn is independent and stays at its default", prefs.keepScreenOn.first())
+    }
+
+    @Test
     fun setKeepScreenOnFalse_roundTrips() = runBlocking {
         val (dataStore, _) = newDataStore()
         val prefs = DisplayPrefs(dataStore)

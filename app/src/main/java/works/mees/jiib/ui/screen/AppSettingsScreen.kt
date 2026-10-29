@@ -103,6 +103,7 @@ fun AppSettingsScreen(
     // Display / always-on (§R2, 26.5-05) — process-scoped, connection-INDEPENDENT.
     // Durable writeScope intent, never a composition scope (T-28-07-02).
     val keepScreenOn by container.keepScreenOn.collectAsStateWithLifecycle(true)
+    val onlyWhilePrinting by container.keepScreenOnOnlyWhilePrinting.collectAsStateWithLifecycle(false)
 
     // App-global webcam toggle (moved from per-printer, 2026-06-15) — process-scoped, durable.
     // Initial matches DisplayPrefs.DEFAULT_WEBCAM_ENABLED (false since 2026-07-05) so a fresh install
@@ -146,6 +147,8 @@ fun AppSettingsScreen(
         onOpenDataFont = onOpenDataFont,
         keepScreenOn = keepScreenOn,
         onKeepScreenOnToggle = { container.setKeepScreenOn(it) },
+        onlyWhilePrinting = onlyWhilePrinting,
+        onOnlyWhilePrintingToggle = { container.setKeepScreenOnOnlyWhilePrinting(it) },
         webcamEnabled = webcamEnabled,
         onWebcamToggle = { container.setWebcamEnabled(it) },
         showUnsupportedTools = showUnsupportedTools,
@@ -217,6 +220,8 @@ fun AppSettingsContent(
     isPrinting: Boolean = false,
     onEmergencyStop: (() -> Unit)? = null,
     initialSelected: AppSetting? = null,
+    onlyWhilePrinting: Boolean = false,
+    onOnlyWhilePrintingToggle: (Boolean) -> Unit = {},
 ) {
     val t = LocalTokens.current
     var selected by rememberSaveable { mutableStateOf(initialSelected) }
@@ -232,6 +237,8 @@ fun AppSettingsContent(
                     onFontScale = onFontScale,
                     keepScreenOn = keepScreenOn,
                     onKeepScreenOnToggle = onKeepScreenOnToggle,
+                    onlyWhilePrinting = onlyWhilePrinting,
+                    onOnlyWhilePrintingToggle = onOnlyWhilePrintingToggle,
                     webcamEnabled = webcamEnabled,
                     onWebcamToggle = onWebcamToggle,
                     showUnsupportedTools = showUnsupportedTools,
@@ -290,7 +297,7 @@ fun AppSettingsContent(
                             onClick = { selected = if (selected == AppSetting.KeepAwake) null else AppSetting.KeepAwake },
                             icon = JiibIcons.Fluorescent,
                             label = stringResource(R.string.settings_keep_screen_on),
-                            indicator = stringResource(onOffRes(keepScreenOn)),
+                            indicator = stringResource(keepAwakeIndicatorRes(keepScreenOn, onlyWhilePrinting)),
                             uDp = grid.uDp,
                         )
                     }
@@ -379,6 +386,13 @@ private fun textSizeIndicatorRes(fontScale: FontScale): Int = when (fontScale) {
 
 private fun onOffRes(on: Boolean): Int = if (on) R.string.common_on else R.string.common_off
 
+/** Keep-awake row indicator: Off / On / While printing. */
+private fun keepAwakeIndicatorRes(keepScreenOn: Boolean, onlyWhilePrinting: Boolean): Int = when {
+    !keepScreenOn -> R.string.common_off
+    onlyWhilePrinting -> R.string.settings_keep_screen_on_while_printing_short
+    else -> R.string.common_on
+}
+
 /**
  * A pure-selector App Settings row: leading icon + label + a right-aligned READ-ONLY text indicator.
  * No control lives in the row (R5 lists-first law) — tapping selects the row to load its Focus detail.
@@ -442,6 +456,8 @@ private fun AppSettingsFocus(
     isPrinting: Boolean,
     onEmergencyStop: (() -> Unit)?,
     modifier: Modifier = Modifier,
+    onlyWhilePrinting: Boolean = false,
+    onOnlyWhilePrintingToggle: (Boolean) -> Unit = {},
 ) {
     val t = LocalTokens.current
 
@@ -493,6 +509,14 @@ private fun AppSettingsFocus(
                 checked = keepScreenOn,
                 onToggle = onKeepScreenOnToggle,
                 uDp = uDp,
+            )
+            ToggleRow(
+                label = stringResource(R.string.settings_keep_screen_on_while_printing),
+                subLabel = stringResource(R.string.settings_keep_screen_on_while_printing_sub),
+                checked = onlyWhilePrinting,
+                onToggle = onOnlyWhilePrintingToggle,
+                uDp = uDp,
+                enabled = keepScreenOn,
             )
         }
         AppSetting.Webcam -> frame(

@@ -49,6 +49,22 @@ class DisplayPrefs(
     }
 
     /**
+     * Narrows [keepScreenOn] to an active print (Printing/Paused): the screen sleeps on the system
+     * timeout when idle, and the service wakes it when a print starts ([shouldHoldScreenOn]). Only
+     * meaningful while [keepScreenOn] is on. Default FALSE (keeps the always-on behavior).
+     * Fail-safe: a read error yields the default.
+     */
+    val keepScreenOnOnlyWhilePrinting: Flow<Boolean> =
+        dataStore.data
+            .catch { e -> if (e is IOException) emit(emptyPreferences()) else throw e }
+            .map { prefs -> prefs[KEY_ONLY_WHILE_PRINTING] ?: DEFAULT_ONLY_WHILE_PRINTING }
+
+    /** Persist the only-while-printing toggle. */
+    suspend fun setKeepScreenOnOnlyWhilePrinting(on: Boolean) {
+        dataStore.edit { prefs -> prefs[KEY_ONLY_WHILE_PRINTING] = on }
+    }
+
+    /**
      * Whether the webcam tile/surface is offered app-wide (moved from per-profile `Profile.webcamEnabled`
      * to app-global, 2026-06-15). Default FALSE (2026-07-05) — webcam is opt-in until the known
      * rotation/stability issues are fixed, so a fresh install never surfaces a flaky feature; the user
@@ -84,6 +100,9 @@ class DisplayPrefs(
     companion object {
         const val DEFAULT_KEEP_SCREEN_ON = true
         private val KEY_KEEP_SCREEN_ON = booleanPreferencesKey("keep_screen_on")
+
+        const val DEFAULT_ONLY_WHILE_PRINTING = false
+        private val KEY_ONLY_WHILE_PRINTING = booleanPreferencesKey("keep_screen_on_only_while_printing")
 
         const val DEFAULT_WEBCAM_ENABLED = false
         private val KEY_WEBCAM_ENABLED = booleanPreferencesKey("webcam_enabled")

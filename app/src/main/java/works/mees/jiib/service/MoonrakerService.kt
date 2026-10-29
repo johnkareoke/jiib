@@ -19,6 +19,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import works.mees.jiib.JiibApp
 import works.mees.jiib.MainActivity
@@ -110,6 +111,13 @@ class MoonrakerService : Service() {
                     updateNotification("Set up printer")
                 },
             )
+        }
+
+        // "Only while printing" screen mode: keep the socket alive through screen-off and wake the
+        // screen when a print starts. Cancelled (locks released) with serviceScope in onDestroy.
+        serviceScope.launch {
+            PrintWakeController(this@MoonrakerService)
+                .run(container.wakeForPrints, container.printerState.map { it.printState })
         }
     }
 

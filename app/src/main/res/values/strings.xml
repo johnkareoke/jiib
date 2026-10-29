@@ -622,6 +622,9 @@
     <string name="settings_keep_screen_on">Keep screen awake</string>
     <string name="settings_keep_screen_on_sub_on">Screen stays on while jiib is open</string>
     <string name="settings_keep_screen_on_sub_off">System screen timeout applies</string>
+    <string name="settings_keep_screen_on_while_printing">Only while printing</string>
+    <string name="settings_keep_screen_on_while_printing_sub">Sleeps when idle, wakes when a print starts</string>
+    <string name="settings_keep_screen_on_while_printing_short">Printing</string>
     <string name="settings_battery_optimization">Android Battery</string>
     <string name="settings_battery_exempt">Exempt — the connection survives Doze</string>
     <string name="settings_battery_optimized">Optimized — tap to let jiib stay connected with the screen off</string>
@@ -756,7 +759,7 @@
     <!-- ============== App Settings — Focus/Field redesign (2026-06-15) ============== -->
     <string name="settings_app_settings_placeholder">Tap a setting to see what it does and change it.</string>
     <string name="settings_text_size_focus">Sets the app-wide text size. Affects every screen.</string>
-    <string name="settings_keep_screen_on_focus">Keep the screen on while jiib is open, so the printer display never sleeps.</string>
+    <string name="settings_keep_screen_on_focus">Keep the screen on while jiib is open, so the printer display never sleeps. With Only while printing, the screen sleeps between prints and turns back on when a print starts; Wi-Fi stays connected while the screen is off, so keep the tablet on power.</string>
     <string name="settings_webcam_focus">Show the webcam tile when a printer has a camera. Turn off if this device won\'t use the webcam or can\'t handle the stream.</string>
     <string name="settings_babystep_focus">Offer a Z-babystep adjust over the first layers of a print to dial in nozzle height.</string>
     <string name="settings_babystep_layers_count">%1$d layers</string>

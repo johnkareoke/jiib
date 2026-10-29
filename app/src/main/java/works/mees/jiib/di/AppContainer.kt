@@ -69,6 +69,8 @@ import works.mees.jiib.calibration.BedMeshViewType
 import works.mees.jiib.ui.settings.BabystepPrefs
 import works.mees.jiib.ui.settings.BedMeshRenderPrefs
 import works.mees.jiib.ui.settings.DisplayPrefs
+import works.mees.jiib.ui.settings.shouldHoldScreenOn
+import works.mees.jiib.ui.settings.wakeForPrints as wakeForPrintsPolicy
 import works.mees.jiib.ui.settings.FontPrefs
 import works.mees.jiib.ui.settings.FontScalePrefs
 import works.mees.jiib.ui.settings.TraceStylePrefs
@@ -598,6 +600,14 @@ class AppContainer(
         writeScope.launch { displayPrefs.setKeepScreenOn(on) }
     }
 
+    /** Whether keep-screen-on is narrowed to active prints (default false). */
+    val keepScreenOnOnlyWhilePrinting: Flow<Boolean> = displayPrefs.keepScreenOnOnlyWhilePrinting
+
+    /** Persist the only-while-printing toggle, durably (same [writeScope] rule as [setKeepScreenOn]). */
+    fun setKeepScreenOnOnlyWhilePrinting(on: Boolean) {
+        writeScope.launch { displayPrefs.setKeepScreenOnOnlyWhilePrinting(on) }
+    }
+
     /** App-global webcam-enabled (moved from per-profile, 2026-06-15) — process-scoped, durable. */
     val webcamEnabled: Flow<Boolean> = displayPrefs.webcamEnabled
 
@@ -932,6 +942,24 @@ class AppContainer(
     /** Live printer state; falls back to an empty default when idle (no session). */
     val printerState: Flow<PrinterState> =
         spine.flatMapLatest { it?.printerState ?: flowOf(PrinterState()) }
+
+    /**
+     * Whether the shell holds the screen awake right now ([shouldHoldScreenOn]): the keep-screen-on
+     * pref, narrowed to active prints when only-while-printing is on. Declared AFTER [printerState]
+     * (property initialization order).
+     */
+    val holdScreenOn: Flow<Boolean> =
+        combine(
+            displayPrefs.keepScreenOn,
+            displayPrefs.keepScreenOnOnlyWhilePrinting,
+            printerState.map { it.printState },
+            ::shouldHoldScreenOn,
+        ).distinctUntilChanged()
+
+    /** The "only while printing" mode ([wakeForPrints]): the service wakes the screen on print start. */
+    val wakeForPrints: Flow<Boolean> =
+        combine(displayPrefs.keepScreenOn, displayPrefs.keepScreenOnOnlyWhilePrinting, ::wakeForPrintsPolicy)
+            .distinctUntilChanged()
 
     /** Live connection lifecycle; Disconnected when idle. */
     val connectionState: Flow<ConnectionState> =

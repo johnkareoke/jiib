@@ -40,6 +40,9 @@
           Play policy applies).
     -->
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <!-- "Only while printing" screen mode (PrintWakeController): CPU + Wi-Fi locks to keep the socket
+         alive through screen-off, and a screen wake lock to turn the screen on when a print starts. -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <!--
       Phase 11 (SPOOL-05/06) — QR-scan camera (ADD ONLY; Phase-1 cleartext posture untouched):

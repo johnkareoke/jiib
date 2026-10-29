@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -136,6 +137,12 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+        // "Only while printing" screen mode: when the service wakes the screen for a print start, show
+        // the shell over the (non-secure) lock screen instead of the Fire OS lock screen.
+        lifecycleScope.launch {
+            container.wakeForPrints.collect { setShowOverLockScreen(it) }
+        }
+
         // Start the FGS that owns the spine (SHELL-03/D-01). Idempotent: the started service is
         // START_STICKY and re-delivers cleanly; the spine is process-held in the AppContainer.
         // ContextCompat (26.5-04 codex review): the platform startForegroundService() is API 26+ —
@@ -216,6 +223,17 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+        }
+    }
+
+    private fun setShowOverLockScreen(on: Boolean) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(on)
+        } else {
+            @Suppress("DEPRECATION")
+            val flags = WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+            if (on) window.addFlags(flags) else window.clearFlags(flags)
         }
     }
 
